@@ -15,17 +15,19 @@ class ProductManager{
             }
             ProductManager.currentID += this.content.length;
         }
-        }
-    addProduct(title, description, price, thumbnail, code, stock){
+    }
+    addProduct(title, description, price, code, stock, status = true, category,thumbnails = null,){
         let isFound = this.searchProductByCode(code);
         if(isFound === false){
             const newProduct = {
                 title: title,
                 description: description,
-                price: price,
-                thumbnail: thumbnail,
                 code: code,
+                price: price,
+                status: status,
+                thumbnails: thumbnails,
                 stock: stock,
+                category: category,
                 ID: ProductManager.currentID,
             }
             this.products.push(newProduct)
@@ -43,9 +45,9 @@ class ProductManager{
             }
         }
     }
-    updateProduct(soughtCode, parameter, newData){
+    updateProduct(soughtID, parameter, newData){
         for (let index = 0; index < this.products.length; index++) {
-            if(soughtCode === this.products[index].code){
+            if(soughtID === this.products[index].ID){
                 if(parameter == "title"){
                     this.products[index].title = newData
                 }
@@ -55,14 +57,20 @@ class ProductManager{
                 else if(parameter == "price"){
                     this.products[index].price = newData
                 }
-                else if(parameter == "thumbnail"){
-                    this.products[index].thumbnail = newData
+                else if(parameter == "thumbnails"){
+                    this.products[index].thumbnails = newData
                 }
                 else if(parameter == "code"){
                     this.products[index].code = newData
                 }
+                else if(parameter == "status"){
+                    this.products[index].status = newData
+                }
                 else if(parameter == "stock"){
                     this.products[index].stock = newData
+                }
+                else if(parameter == "category"){
+                    this.products[index].category = newData
                 }
                 break;
             }
@@ -112,13 +120,4 @@ class ProductManager{
     }
 }
 
-/*
-let productos = new ProductManager();
-let penaldo = productos.addProduct("Ronaldog", "el bicho siuuu", 200000,"qcyo",123124,125);
-productos.deleteProduct(3);
-let neymar = productos.addProduct("Neymar", "fuchibol fantastico", 200000,"qcyo",123125,125);
-let todos = productos.getProducts();
-console.log(todos);
-productos.appendProducts()
-*/
 export default ProductManager;
