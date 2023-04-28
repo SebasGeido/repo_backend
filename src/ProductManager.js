@@ -4,7 +4,7 @@ const fs = require('fs');
 class ProductManager{
     static currentID = 1;
     constructor() {
-        this.path = './productos.json'
+        this.path = './public/productos.json'
         this.products = []
         this.exists = fs.existsSync(this.path)
         if(this.exists){

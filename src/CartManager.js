@@ -4,7 +4,7 @@ const fs = require('fs');
 class CartManager{
     static currentID = 1;
     constructor() {
-        this.path = './carrito.json'
+        this.path = './public/carritos'
         this.carts = []
         this.exists = fs.existsSync(this.path)
         if(this.exists){
