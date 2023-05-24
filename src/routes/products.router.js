@@ -1,12 +1,48 @@
 import { Router } from "express";
 const router = Router();
 import { clase_productos } from "../app.js";
+import { productModel } from "../models/user.model.js";
 
 router.get('GET/', (req, res) => {
     let limite = parseInt(req.query.limite)
+    let ordenar = req.query.sort;
+    if(ordenar){
+        if (ordenar == asc){
+            productos.sort((a,b) => a.price - b.price);
+        }
+        else if (ordenar == desc){
+            productos.sort((a,b) => b.price - a.price);
+        }
+    }
     if(!limite) return res.send({ productos })
     let productosLimitados = productos.slice(0, limite);
     res.send(productosLimitados) 
+})
+
+router.get('GET/Moongose', async(req, res) => {
+    try{
+        let products = await productModel.find()
+        res.send({result:"Exito",payload:products})
+    }
+    catch(error){
+        console.log("No se pudieron obtener los productos a traves de Moongose: " + error)
+    }
+})
+
+router.put('PUT/:uid/Modificar', async(req, res) => {
+    let {uid} = req.params;
+    let userToReplace = req.body;
+    if(!userToReplace.title||!userToReplace.description||!userToReplace.code||!userToReplace.price||!userToReplace.status||!!userToReplace.thumbnails||!userToReplace.stock||!userToReplace.category||!userToReplace.category||!userToReplace.ID){
+        return res.send({status:"error", error:"Valores incompletos"})
+    }
+    let result = await productModel.updateOne({_id:uid})
+    res.send({status:"exito", payload:result})
+})
+
+router.put('PUT/:uid/Eliminar', async(req, res) => {
+    let {uid} = req.params;
+    let result = await productModel.deleteOne({_id:uid})
+    res.send({status:"exito", payload:result})
 })
 
 router.get('GET/:pid', (req, res) => {
