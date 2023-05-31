@@ -3,6 +3,7 @@ import CartManager from './CartManager.js';
 import cartRouter from './routes/cart.router.js';
 import productsRouter from './routes/products.router.js';
 import express from 'express';
+import session from 'express-session';
 import __dirname from './utils.js';
 import handlebars from 'express-handlebars';
 import viewsRouter from './routes/views.router.js';
@@ -36,6 +37,14 @@ app.use('/api/products/',productsRouter);
 app.use('/api/carts/',cartRouter);
 app.use(express.static(__dirname+'/public'))
 app.use('/', viewsRouter)
+app.get('/login', (req, res) => {
+    const {nombreUsuario, contraseña}  = req.query
+    if (nombreUsuario !== 'Messi' || contraseña !== 'fulbo') {
+        return res.send('Contraseña/Usuario incorrectos')
+    }
+    req.session.user = nombreUsuario;
+    res.send('Se ha logeado correctamente, bienvenido ' + req.session.user);
+})
 
 socketServer.on('connection', socket=>{
     console.log("Nuevo cliente conectado");

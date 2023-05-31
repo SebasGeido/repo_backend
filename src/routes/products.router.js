@@ -3,26 +3,22 @@ const router = Router();
 import { clase_productos } from "../app.js";
 import { productModel } from "../models/user.model.js";
 
-router.get('GET/', (req, res) => {
+router.get('GET/', async(req, res) => {
     let limite = parseInt(req.query.limite)
     let ordenar = req.query.sort;
-    if(ordenar){
-        if (ordenar == asc){
-            productos.sort((a,b) => a.price - b.price);
-        }
-        else if (ordenar == desc){
-            productos.sort((a,b) => b.price - a.price);
-        }
-    }
-    if(!limite) return res.send({ productos })
-    let productosLimitados = productos.slice(0, limite);
-    res.send(productosLimitados) 
-})
-
-router.get('GET/Moongose', async(req, res) => {
     try{
-        let products = await productModel.find()
-        res.send({result:"Exito",payload:products})
+        let productos = await productModel.find()
+        if(ordenar){
+            if (ordenar == asc){
+                productos.sort((a,b) => a.price - b.price);
+            }
+            else if (ordenar == desc){
+                productos.sort((a,b) => b.price - a.price);
+            }
+        }
+        if(!limite) return res.send({result:"Exito",payload:productos})
+        let productosLimitados = productos.slice(0, limite);
+        res.send({result:"Exito",payload:productosLimitados}) 
     }
     catch(error){
         console.log("No se pudieron obtener los productos a traves de Moongose: " + error)
@@ -45,9 +41,9 @@ router.put('PUT/:uid/Eliminar', async(req, res) => {
     res.send({status:"exito", payload:result})
 })
 
-router.get('GET/:pid', (req, res) => {
+router.get('GET/:pid', async(req, res) => {
     let ID = parseInt(req.params.pid);
-    let producto = productos.find(e => e.ID === ID);
+    let producto = productModel.find(e => e.ID === ID);
     if(!producto) return res.send({error: "Producto no encontrado"})
     res.send({producto})
 })
