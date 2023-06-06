@@ -1,5 +1,11 @@
 {{!< index}}
 <div>
+    {{#if esAdmin}}
+        <h1>Bienvenido admin {{nombreUsuario}}</h1>
+    {{else}}
+        <h2>Bienvenido plebeyo {{nombreUsuario}}</h2>
+    {{/if}}
+
     <h1>Productos</h1>
     {{#each producto}}
         <div>
