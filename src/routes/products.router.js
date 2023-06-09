@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 import { clase_productos } from "../app.js";
-import { productModel } from "../models/user.model.js";
+import { productModel } from "../models/product.model.js";
 
 router.get('GET/', async(req, res) => {
     let limite = parseInt(req.query.limite)

@@ -11,6 +11,8 @@ import fs from 'fs/promises';
 import mongoose from 'mongoose';
 import {Server} from 'socket.io';
 import { error } from 'console';
+import passport, { initialize } from 'passport';
+import inicializarPassport from './config/passport.config.js';
 
 const app = express();
 const httpServer = app.listen(8080, () => console.log("Escuchando en puerto 8080"));
@@ -42,7 +44,9 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
 }))
-
+inicializarPassport();
+app.use(passport.initialize()); 
+app.use(passport.session());
 socketServer.on('connection', socket=>{
     console.log("Nuevo cliente conectado");
     fs.watch(__dirname + '/public/productos.json', (eventType, filename) => {

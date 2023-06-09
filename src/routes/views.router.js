@@ -1,7 +1,11 @@
 import { Router } from "express";
 const router = Router();
-const emailAdmin = "adminCoder@coder.com"
+const emailAdmin = "adminCoder@coder.com";
 import { clase_productos } from "../app.js";
+import { crearHash, esValidaContrasena } from "../utils.js";
+import { userModel } from "../models/user.model.js";
+import passport from "passport";
+
 function autenticar(req, res, next) {
     if (req.session?.esAdmin) {
         return next()
@@ -14,8 +18,8 @@ router.get('/', (req, res) =>{
         res.redirect('/inicioSesion')
     }
     let productos = clase_productos.getProducts();
-    let esAdmin = req.session.esAdmin;
-    let nombreUsuario = req.session?.nombreUsuario;
+    let esAdmin = req.session.usuario.esAdmin;
+    let nombreUsuario = req.session?.usuario.nombreUsuario;
     res.render('home', {
         productos, nombreUsuario: nombreUsuario, esAdmin: esAdmin});
 })
@@ -38,23 +42,33 @@ router.post('/cerrarSesion', (req, res) => {
     res.render('cerrarSesion');
 })
 
-router.post('/inicioSesion', (req, res) => {
-    let data = req.body;
-    if (data.email == emailAdmin ){
-        req.session.esAdmin = true;
-        req.session.rol = "admin";
+router.get('/github', passport.authenticate('github', {scope:['user:email']}), async(req, res) =>{})
+
+router.get('/githubcallback', passport.authenticate('github', {failureRedirect: '/inicioSesion'}), async (req, res) => {
+    req.session.usuario = req.usuario;
+    res.redirect('/');
+})
+
+router.post('/registro', passport.authenticate('form', {failureRedirect: '/registroFallido'}), async (req,res) => {
+    res.send({status:"success", message:"Usuario registrado"})
+})
+
+router.post('/registroFallido', async (req,res) => {
+    console.log("Registro fallido");
+    res.send({error:"Failed"})
+})
+
+router.post('/inicioSesion', passport.authenticate('iniciarSesion', {failureRedirect: '/inicioSesionFallido'}), async (req, res) => {
+    if(!req.usuario) return res.status(400).send({status:'error',error:'Credenciales invalidas'})
+    req.session.usuario = {
+        nombre: req.usuario.nombreUsuario,
+        apellido: req.usuario.apellidoUsuario,
+        email: req.usuario.email,
     }
-    else{
-        req.session.esAdmin = false;
-        req.session.rol = "usuario";
-    }
-    req.session.nombreUsuario = data.nombreUsuario;
-    req.session.apellidoUsuario = data.apellidoUsuario;
-    req.session.contrasena = data.contrasena;
-    req.session.inicioSesion = true;
-    res.render('form');
-    if(req.session.esAdmin){
-        res.redirect('/')
-    }
+    res.send({status:"exito", payload:req.usuario})
+})
+
+router.post('/incioSesionFallido', (req,res) => {
+    res.send({error:'Inicio de sesion fallido'})
 })
 module.exports = router;
