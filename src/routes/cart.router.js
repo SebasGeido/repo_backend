@@ -36,4 +36,4 @@ router.get('POST/:cid/product/:pid', (req, res) => {
     res.end()
 })
 
-module.exports = router;
+export default router

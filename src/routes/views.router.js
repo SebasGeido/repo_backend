@@ -14,14 +14,17 @@ function autenticar(req, res, next) {
 }
 
 router.get('/', (req, res) =>{
-    if(req.session.inicioSesion == false) {
+    if(req.session) {
+        let productos = clase_productos.getProducts();
+        let esAdmin = req.session.usuario.esAdmin;
+        let nombreUsuario = req.session?.usuario.nombreUsuario;
+        res.render('home', {
+            productos, nombreUsuario: nombreUsuario, esAdmin: esAdmin});
+        }
+    else {
+        //res.render('index');
         res.redirect('/inicioSesion')
     }
-    let productos = clase_productos.getProducts();
-    let esAdmin = req.session.usuario.esAdmin;
-    let nombreUsuario = req.session?.usuario.nombreUsuario;
-    res.render('home', {
-        productos, nombreUsuario: nombreUsuario, esAdmin: esAdmin});
 })
 
 router.get('realtimeproducts/', autenticar, (req, res) =>{
@@ -58,6 +61,10 @@ router.post('/registroFallido', async (req,res) => {
     res.send({error:"Failed"})
 })
 
+router.get('/inicioSesion', (req, res) => {
+    res.render('iniciarSesion', {layout: 'index'});
+})
+
 router.post('/inicioSesion', passport.authenticate('iniciarSesion', {failureRedirect: '/inicioSesionFallido'}), async (req, res) => {
     if(!req.usuario) return res.status(400).send({status:'error',error:'Credenciales invalidas'})
     req.session.usuario = {
@@ -68,7 +75,7 @@ router.post('/inicioSesion', passport.authenticate('iniciarSesion', {failureRedi
     res.send({status:"exito", payload:req.usuario})
 })
 
-router.post('/incioSesionFallido', (req,res) => {
+router.post('/inicioSesionFallido', (req,res) => {
     res.send({error:'Inicio de sesion fallido'})
 })
-module.exports = router;
+export default router;

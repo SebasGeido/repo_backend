@@ -1,10 +1,11 @@
+import { error } from 'console';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const fs = require('fs');
 class CartManager{
     static currentID = 1;
     constructor() {
-        this.path = './public/carritos'
+        this.path = './public/carrito.json'
         this.carts = []
         this.exists = fs.existsSync(this.path)
         if(this.exists){
@@ -53,10 +54,13 @@ class CartManager{
         return this.carts;
     }
     appendCarts(){
-        fs.appendFile(this.path,JSON.stringify(this.carts), function (err) {
-            if (err) throw err;
-            console.log('El contenido se ha agregado al archivo');
-          });
+        fs.appendFile(this.path,JSON.stringify(this.carts), (error) => {
+            if (error) {
+                console.log('El contenido no ha sido agregado correctamente: ' + error.message);
+            } else {
+                console.log('El contenido se ha agregado al archivo');
+            }
+        })
     }
 }
 

@@ -1,12 +1,11 @@
 import passport from "passport";
-import local from local;
-import { userModel } from "../models/user.model";
-import { crearHash, esValidaContrasena } from "../utils";
+import PassportLocal from "passport-local";
+import { userModel } from "../models/user.model.js";
+import { crearHash, esValidaContrasena } from "../utils.js";
 const emailAdmin = "adminCoder@coder.com";
 
-const LocalStrategy = local.Strategy;
 const inicializarPassport = () =>{
-    passport.use('form', new LocalStrategy(
+    passport.use('form', new PassportLocal.Strategy(
         {passReqToCallBack:true, usernameField:'email'}, async (req, nombreUsuario, contrasena, done) => {
             const {nombre, apellido, email} = req.body;
             try{
@@ -46,14 +45,14 @@ const inicializarPassport = () =>{
     });
 }
 const inicializarPassportGithub = () =>{
-    passport.use('github', new GitHubStrategy({
+    passport.use('github', new GitHub.Strategy({
         clientID:'Iv1.66f84664a90f5563',
         clientSecret: '74a27f45f1032c865fc494aaf52f74ae24bdb33f',
         callbackUrl: 'http://localhost:8080/'
     }, async (accessToken, refreshToken, profile, done) => {
         try{
             console.log(profile);
-            let usuario = await.userModel.findOne({email:profile._json.email})
+            let usuario = await userModel.findOne({email:profile._json.email})
             if(!user) {
                 let nuevoUsuario = {
                     nombre:profile._json.usernameField,

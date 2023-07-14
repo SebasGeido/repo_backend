@@ -113,10 +113,13 @@ class ProductManager{
         return this.products;
     }
     appendProducts(){
-        fs.appendFile(this.path,JSON.stringify(this.products), function (err) {
-            if (err) throw err;
-            console.log('El contenido se ha agregado al archivo');
-          });
+        fs.appendFile(this.path,JSON.stringify(this.products), (error) => {
+            if (error) {
+                console.log('El contenido no ha sido agregado correctamente: ' + error.message);
+            } else {
+                console.log('El contenido se ha agregado al archivo');
+            }
+        })
     }
 }
 
