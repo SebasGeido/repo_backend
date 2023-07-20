@@ -3,7 +3,9 @@ const router = Router();
 import { clase_productos } from "../app.js";
 import { productModel } from "../models/product.model.js";
 
-router.get('GET/', async(req, res) => {
+router.get('/GET', async(req, res) => {
+    /*let productos = await productModel.find();
+    return res.send(productos);*/
     let limite = parseInt(req.query.limite)
     let ordenar = req.query.sort;
     try{
@@ -25,7 +27,7 @@ router.get('GET/', async(req, res) => {
     }
 })
 
-router.put('PUT/:uid/Modificar', async(req, res) => {
+router.put('/PUT/:uid/Modificar', async(req, res) => {
     let {uid} = req.params;
     let userToReplace = req.body;
     if(!userToReplace.title||!userToReplace.description||!userToReplace.code||!userToReplace.price||!userToReplace.status||!!userToReplace.thumbnails||!userToReplace.stock||!userToReplace.category||!userToReplace.category||!userToReplace.ID){
@@ -35,20 +37,20 @@ router.put('PUT/:uid/Modificar', async(req, res) => {
     res.send({status:"exito", payload:result})
 })
 
-router.put('PUT/:uid/Eliminar', async(req, res) => {
+router.put('/PUT/:uid/Eliminar', async(req, res) => {
     let {uid} = req.params;
     let result = await productModel.deleteOne({_id:uid})
     res.send({status:"exito", payload:result})
 })
 
-router.get('GET/:pid', async(req, res) => {
+router.get('/GET/:pid', async(req, res) => {
     let ID = parseInt(req.params.pid);
     let producto = productModel.find(e => e.ID === ID);
     if(!producto) return res.send({error: "Producto no encontrado"})
     res.send({producto})
 })
 
-router.get('POST/', (req, res) => {
+router.get('/POST', (req, res) => {
     let title = req.body.title;
     let description = req.body.description;
     let code = req.body.code;
@@ -58,10 +60,11 @@ router.get('POST/', (req, res) => {
     let category = req.body.category;
     let thumbnails = req.body.thumbnails;
     clase_productos.addProduct(title,description,price,code,stock,status,category,thumbnails);
+    res.send("El archivo se agregó correctamente");
     res.end()
 })
 
-router.get('PUT/:pid', (req, res) => {
+router.get('/PUT/:pid', (req, res) => {
     let id = parseInt(req.params.pid);
     let idExiste = clase_productos.searchProductByID(id);
     if(idExiste){
@@ -96,11 +99,12 @@ router.get('PUT/:pid', (req, res) => {
     }
 })
 
-router.get('DELETE/:pid', (req, res) => {
+router.get('/DELETE/:pid', (req, res) => {
     let id = parseInt(req.params.pid);
     let idExiste = clase_productos.searchProductByID(id);
     if(idExiste){
         clase_productos.deleteProduct(id);
+        res.send("Producto eliminado correctamente");
         res.end()
     }    
     else {

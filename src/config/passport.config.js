@@ -2,28 +2,26 @@ import passport from "passport";
 import PassportLocal from "passport-local";
 import { userModel } from "../models/user.model.js";
 import { crearHash, esValidaContrasena } from "../utils.js";
+import LocalStrategy from 'passport-local';
 const emailAdmin = "adminCoder@coder.com";
 
-const inicializarPassport = () =>{
     passport.use('form', new PassportLocal.Strategy(
-        {passReqToCallBack:true, usernameField:'email'}, async (req, nombreUsuario, contrasena, done) => {
-            const {nombre, apellido, email} = req.body;
+        {passReqToCallBack:true, usernameField:'nombre', passwordField:'constrasena'}, async ( email, contrasena, done) => {
+            console.log(nombreUsuario);
             try{
-                let usuario = await userModel.findOne({email:nombreUsuario});
+                let usuario = await userModel.findOne({email:email});
                 let rol;
                 if(usuario) {
                     console.log("El usuario ya existe");
                     return done(null, false);
                 }
-                if (email == emailAdmin) {
+                if (emailUsuario == emailAdmin) {
                     rol = 'admin';
                 }
                 else {
                     rol = 'usuario'
                 }
                 const nuevoUsuario = {
-                    nombre,
-                    apellido,
                     rol,
                     email,
                     contrasena:crearHash(contrasena)
@@ -36,16 +34,14 @@ const inicializarPassport = () =>{
         }
     ))
     passport.serializeUser((usuario, done) => {
-        done(null, usuario._id);   
+        done(null, usuario.email);   
     });
     
-    passport.deserializeUser(async (id, done) => {
-        let usuario = await userModel.findById(id);
+    passport.deserializeUser(async (email, done) => {
+        let usuario = await userModel.findOne({email:email});
         done(null, usuario);
     });
-}
-const inicializarPassportGithub = () =>{
-    passport.use('github', new GitHub.Strategy({
+/*    passport.use('github', new GitHub.Strategy({
         clientID:'Iv1.66f84664a90f5563',
         clientSecret: '74a27f45f1032c865fc494aaf52f74ae24bdb33f',
         callbackUrl: 'http://localhost:8080/'
@@ -69,20 +65,18 @@ const inicializarPassportGithub = () =>{
             return done(error);
         }
     }))
-}
-const logueo = () => {
-    passport.use('iniciarSesion', new LocalStrategy({usernameField:'email'}, async(usuario, contrasena, done) =>{
+*/
+    passport.use('iniciarSesion', new LocalStrategy({usernameField:'email'}, async(email, contrasena, done) =>{
         try{
-            const usuario = await userModel.findOne({email:usuario})
-            if(!user) {
+            const usuario = await userModel.findOne({email:email})
+            if(!usuario) {
                 console.log("El usuario no existe")
                 return done (null, false);
             }
-            if(!esValidaContrasena(usuario, contrasena)) return done (null, false);
+            if(!esValidaContrasena(usuario, contrasena)) return done (null, false, { message: 'La constraseña es incorrecta'});
             return done (null, usuario);
         }catch(error){
             return done(error);
         }
     }))
-}
-export default inicializarPassport; logueo;
+export default passport;

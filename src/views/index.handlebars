@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos</title>
-</head>
-<body>
-    {{{body}}}
-</body>
-</html>
+{{#extend "main.layout"}}
+{{#content "body"}}
+<div>
+    {{#if esAdmin}}
+        <h1>Bienvenido admin {{nombreUsuario}}</h1>
+    {{else}}
+        <h2>Bienvenido plebeyo {{nombreUsuario}}</h2>
+    {{/if}}
+
+    <h1>Productos</h1>
+    {{#each producto}}
+        <div>
+            <p>{{this.title}}</p>
+        </div>
+</div>

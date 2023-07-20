@@ -1,10 +1,9 @@
 import { Router } from "express";
 const router = Router();
-const emailAdmin = "adminCoder@coder.com";
 import { clase_productos } from "../app.js";
-import { crearHash, esValidaContrasena } from "../utils.js";
 import { userModel } from "../models/user.model.js";
 import passport from "passport";
+import __dirname from "../utils.js";
 
 function autenticar(req, res, next) {
     if (req.session?.esAdmin) {
@@ -16,13 +15,17 @@ function autenticar(req, res, next) {
 router.get('/', (req, res) =>{
     if(req.session) {
         let productos = clase_productos.getProducts();
-        let esAdmin = req.session.usuario.esAdmin;
-        let nombreUsuario = req.session?.usuario.nombreUsuario;
-        res.render('home', {
+        let esAdmin;
+        if(req.usuario.rol == 'Admin'){
+            esAdmin = true;
+        }else{
+            esAdmin = false;
+        }
+        let nombreUsuario = req.usuario.nombreUsuario;
+        res.render('index', {
             productos, nombreUsuario: nombreUsuario, esAdmin: esAdmin});
         }
     else {
-        //res.render('index');
         res.redirect('/inicioSesion')
     }
 })
@@ -38,6 +41,7 @@ router.post('/cerrarSesion', (req, res) => {
             if (err) {
                 return res.json({ status: 'ERROR Logout', body: err})
             }
+            req.logOut();
             res.send('Deslogueado correctamente')
             res.redirect('/inicioSesion')
         })
@@ -52,30 +56,36 @@ router.get('/githubcallback', passport.authenticate('github', {failureRedirect: 
     res.redirect('/');
 })
 
-router.post('/registro', passport.authenticate('form', {failureRedirect: '/registroFallido'}), async (req,res) => {
-    res.send({status:"success", message:"Usuario registrado"})
+router.get('/registro', (req, res) => {
+    res.sendFile(__dirname + '/views/layouts/registro.html');
+})
+
+router.post('/registro', passport.authenticate('form'/* {failureRedirect: '/registroFallido'}*/), async (req,res) => {
+    res.send({status:"success", message:"Usuario registrado"});
+    res.redirect('/inicioSesion');
 })
 
 router.post('/registroFallido', async (req,res) => {
     console.log("Registro fallido");
-    res.send({error:"Failed"})
+    res.send({error:"Failed"});
 })
 
 router.get('/inicioSesion', (req, res) => {
-    res.render('iniciarSesion', {layout: 'index'});
+    res.sendFile(__dirname + '/views/layouts/iniciarSesion.html');
 })
 
 router.post('/inicioSesion', passport.authenticate('iniciarSesion', {failureRedirect: '/inicioSesionFallido'}), async (req, res) => {
-    if(!req.usuario) return res.status(400).send({status:'error',error:'Credenciales invalidas'})
-    req.session.usuario = {
-        nombre: req.usuario.nombreUsuario,
-        apellido: req.usuario.apellidoUsuario,
-        email: req.usuario.email,
-    }
+    if(!req.body.usuario) return res.status(400).send({status:'error',error:'Credenciales invalidas'})
+    const usuario = await userModel.findOne({email:req.body.emailUsuario})
+    req.login(usuario, (error) => {
+        if (error) {
+            return done(error);
+        }
+    })
     res.send({status:"exito", payload:req.usuario})
 })
 
-router.post('/inicioSesionFallido', (req,res) => {
+router.get('/inicioSesionFallido', (req,res) => {
     res.send({error:'Inicio de sesion fallido'})
 })
 export default router;

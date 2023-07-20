@@ -12,14 +12,13 @@ import mongoose from 'mongoose';
 import {Server} from 'socket.io';
 import {error} from 'console';
 import passport from 'passport';
-import layouts from 'express-handlebars-layouts';
-import inicializarPassport from './config/passport.config.js';
+import path from 'path';
 const app = express();
 const httpServer = app.listen(8080, () => console.log("Escuchando en puerto 8080"));
 const socketServer = new Server(httpServer);
 
 app.set('handlebars', handlebars.engine());
-app.set('views',__dirname+'/views');
+app.set('views', path.join(__dirname,'views'));
 app.set('view engine', 'handlebars');
 
 export let clase_productos = new ProductManager();
@@ -35,15 +34,15 @@ mongoose.connect('mongodb+srv://sebastian_geido:Chesito2003@cluster0.xokbmhy.mon
     });
 app.use(express.json());
 app.use('/api/products/',productsRouter);
-//app.use('/api/carts/',cartRouter);
-//app.use(express.static(__dirname+'/public'))
-app.use('/', viewsRouter)
+app.use('/api/carts/',cartRouter);
+app.use(express.static(path.join(__dirname,'public')));
+app.use('/', viewsRouter);
 app.use(session({
     secret: 'clave-secreta',
     resave: true,
     saveUninitialized: true,
 }))
-inicializarPassport();
+
 app.use(passport.initialize()); 
 app.use(passport.session());
 socketServer.on('connection', socket=>{
